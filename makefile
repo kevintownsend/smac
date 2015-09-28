@@ -1,10 +1,16 @@
-all: main
+all: smac
 
-main:
-	g++ -o main main.cpp
+smac: smac.cpp smac.hpp
+	g++ -o smac smac.cpp
 
-run: main
-	main
+run: smac dense.mtx
+	smac -c dense.mtx dense.smac
 
 vim:
-	vim -p makefile main.cpp
+	vim -p makefile smac.cpp smac.hpp TODO
+
+matrices.zip:
+	wget http://www.nvidia.com/content/NV_Research/matrices.zip
+
+%.mtx: matrices.zip
+	unzip matrices.zip $@
