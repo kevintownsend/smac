@@ -3,7 +3,7 @@ all: smac
 smac: smac.cpp smac.hpp
 	g++ -o smac smac.cpp
 
-run: smac dense.mtx
+run: smac dense2.mtx
 	smac -c dense.mtx dense.smac
 
 vim:
@@ -13,4 +13,4 @@ matrices.zip:
 	wget http://www.nvidia.com/content/NV_Research/matrices.zip
 
 %.mtx: matrices.zip
-	unzip matrices.zip $@
+	unzip -f matrices.zip $@
