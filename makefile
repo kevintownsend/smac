@@ -1,13 +1,22 @@
 all: smac
 
-smac: smac.cpp smac.hpp fzip.hpp
-	g++ -std=gnu++11 -o smac smac.cpp
+smac: smac.cpp smac.hpp fzip.hpp rcr.hpp rcrHelper.hpp
+	g++ -std=gnu++11 -o smac smac.cpp rcrHelper.cpp
 
 fzip.hpp: fzip/include/fzip.hpp
 	cp fzip/include/fzip.hpp .
 
-run: smac dense2.mtx
-	smac -c dense.mtx dense.smac
+rcr.hpp:
+	cp spMatrixHelp/rcr.hpp .
+
+rcrHelper.hpp:
+	cp spMatrixHelp/rcrHelper.hpp .
+
+rcrHelper.cpp:
+	cp spMatrixHelp/rcrHelper.cpp .
+
+run: smac example.mtx
+	smac -c example.mtx dense.smac
 
 vim:
 	vim -p makefile smac.cpp smac.hpp TODO fzip/include/fzip.hpp

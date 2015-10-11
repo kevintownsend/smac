@@ -58,6 +58,7 @@ struct SmacHeader{
     ull r2[9];
 };
 
+//smacCompress(spmCodes, fzipCodes, commonDoubles, spmCodeSteram, spmArgumentStream, fzipCodeStream, fzipArgumentStream);
 int smacCompress(SmacOptions options){
     SmacHeader header;
     //TODO: spmCodes
