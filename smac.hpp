@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "fzip.hpp"
+#include "spm.hpp"
 
 struct SmacOptions{
     bool compress;
@@ -12,6 +13,7 @@ struct SmacOptions{
     FILE* inputFile;
     FILE* outputFile;
     SmacOptions(int argc, char* argv[]){
+        cerr << "here" << endl;
         int nonOptionArgs = 0;
         for(int i = 1; i != argc; ++i){
             string arg(argv[i]);
@@ -27,7 +29,8 @@ struct SmacOptions{
                 }
             }else{
                 if(nonOptionArgs == 0){
-                    inputFile = fopen(arg.c_str(), "rb");
+                    cerr << "opening input file" << endl;
+                    inputFile = fopen(arg.c_str(), "r");
                 }else if(nonOptionArgs == 1){
                     outputFile = fopen(arg.c_str(), "wb");
                 }else{
@@ -47,32 +50,79 @@ typedef unsigned long long ull;
 
 struct SmacHeader{
     ull r0;
-    ull r1[15];
+    ull width;
+    ull height;
+    ull nnz;
+    ull spmCodeStreamBitLength;
+    ull spmArgumentStreamBitLength;
+    ull fzipCodeStreamBitLength;
+    ull fzipArgumentStreamBitLength;
+    ull r1[8];
     ull spmCodesPtr;
     ull fzipCodesPtr;
     ull commonDoublesPtr;
     ull spmCodeStreamPtr;
     ull spmArgumentStreamPtr;
-    ull fzipCodesStreamPtr;
+    ull fzipCodeStreamPtr;
     ull fzipArgumentStreamPtr;
-    ull r2[9];
+    ull size;
+    ull r2[8];
 };
 
-//smacCompress(spmCodes, fzipCodes, commonDoubles, spmCodeSteram, spmArgumentStream, fzipCodeStream, fzipArgumentStream);
+bool smacCompress(vector<ull> &row, vector<ull> &col, vector<double> &val, vector<SpmCode> &spmCodes, vector<FzipCode> &fzipCodes, vector<ull> &commonDoubles, vector<ull> &spmCodeStream, vector<ull> &spmArgumentStream, vector<ull> &fzipCodeStream, vector<ull> &fzipArgumentStream, ull &spmCodeStreamBitLength, ull &spmArgumentStreamBitLength, ull &fzipCodeStreamBitLength, ull &fzipArgumentStreamBitLength);
+
 int smacCompress(SmacOptions options){
+    cerr << "i am here" << endl;
     SmacHeader header;
     //TODO: spmCodes
+    vector<SpmCode> spmCodes;
     vector<FzipCode> fzipCodes;
     vector<ull> commonDoubles;
     vector<ull> spmCodeStream;
     vector<ull> spmArgumentStream;
     vector<ull> fzipCodeStream;
     vector<ull> fzipArgumentStream;
+    ull spmCodeStreamBitLength;
+    ull spmArgumentStreamBitLength;
+    ull fzipCodeStreamBitLength;
+    ull fzipArgumentStreamBitLength;
+    cerr << "i am here" << endl;
+    char line[1000];
+    size_t size;
+    cerr << "i am here" << endl;
+    //getline(&line, &size, options.inputFile);
+    fgets(line, 1000, options.inputFile);
+    ull width, height, nnz;
+    fscanf(options.inputFile, "%lld%lld%lld", &width, &height, &nnz);
+    cerr << "info: " << width << " " << height << " " << nnz << endl;
+    cerr << "here" << endl;
+    cerr << "line: " << string(line) << endl;
+    vector<ull> row;
+    vector<ull> col;
+    vector<double> val;
+    for(ull i = 0; i < nnz; i++){
+        ull tmp1, tmp2;
+        double tmp3;
+        fscanf(options.inputFile, "%lld%lld%lf", &tmp1, &tmp2, &tmp3);
+        row.push_back(tmp1);
+        col.push_back(tmp2);
+        val.push_back(tmp3);
+    }
 
-    //smacCompress(spmCodes, fzipCodes, commonDoubles, spmCodeSteram, spmArgumentStream, fzipCodeStream, fzipArgumentStream);
+    smacCompress(row, col, val, spmCodes, fzipCodes, commonDoubles, spmCodeStream, spmArgumentStream, fzipCodeStream, fzipArgumentStream, spmCodeStreamBitLength, spmArgumentStreamBitLength, fzipCodeStreamBitLength, fzipArgumentStreamBitLength);
+
+    header.width = width;
+    header.height = height;
+    header.nnz = nnz;
+    header.spmCodeStreamBitLength = spmCodeStreamBitLength;
+    header.spmArgumentStreamBitLength = spmArgumentStreamBitLength;
+    header.fzipCodeStreamBitLength = fzipCodeStreamBitLength;
+    header.fzipArgumentStreamBitLength = fzipArgumentStreamBitLength;
+
     ull tmp = sizeof(SmacHeader);
     header.spmCodesPtr = tmp;
     //TODO: increase tmp
+    tmp += spmCodes.size() * sizeof(SpmCode);
     header.fzipCodesPtr = tmp;
     tmp += fzipCodes.size() * sizeof(FzipCode);
     header.commonDoublesPtr = tmp;
@@ -80,11 +130,106 @@ int smacCompress(SmacOptions options){
     header.spmCodeStreamPtr = tmp;
     tmp += spmCodeStream.size() * sizeof(ull);
     header.spmArgumentStreamPtr = tmp;
+    tmp += spmArgumentStream.size() * sizeof(ull);
+    header.fzipCodeStreamPtr = tmp;
+    tmp += fzipCodeStream.size() * sizeof(ull);
+    header.fzipArgumentStreamPtr = tmp;
+    tmp += fzipArgumentStream.size() * sizeof(ull);
+    header.size = tmp;
+    fwrite(&header, sizeof(SmacHeader), 1, options.outputFile);
+    fwrite(&spmCodes[0], sizeof(SpmCode), spmCodes.size(), options.outputFile);
+    fwrite(&fzipCodes[0], sizeof(FzipCode), fzipCodes.size(), options.outputFile);
+    fwrite(&commonDoubles[0], sizeof(ull), commonDoubles.size(), options.outputFile);
+    fwrite(&spmCodeStream[0], sizeof(ull), spmCodeStream.size(), options.outputFile);
+    fwrite(&spmArgumentStream[0], sizeof(ull), spmArgumentStream.size(), options.outputFile);
+    fwrite(&fzipCodeStream[0], sizeof(ull), fzipCodeStream.size(), options.outputFile);
+    fwrite(&fzipArgumentStream[0], sizeof(ull), fzipArgumentStream.size(), options.outputFile);
     return 0;
 }
 
+bool smacCompress(vector<ull> &row, vector<ull> &col, vector<double> &val, vector<SpmCode> &spmCodes, vector<FzipCode> &fzipCodes, vector<ull> &commonDoubles, vector<ull> &spmCodeStream, vector<ull> &spmArgumentStream, vector<ull> &fzipCodeStream, vector<ull> &fzipArgumentStream, ull &spmCodeStreamBitLength, ull &spmArgumentStreamBitLength, ull &fzipCodeStreamBitLength, ull &fzipArgumentStreamBitLength){
+    fzipCompress(val, commonDoubles, fzipCodes, fzipCodeStream, fzipArgumentStream, fzipCodeStreamBitLength, fzipArgumentStreamBitLength);
+    spmCompress(row, col, spmCodes, spmCodeStream, spmArgumentStream);
+
+}
+bool smacDecompress(vector<ull> &row, vector<ull> &col, vector<double> &val, vector<SpmCode> &spmCodes, vector<FzipCode> &fzipCodes, vector<ull> &commonDoubles, vector<ull> &spmCodeStream, vector<ull> &spmArgumentStream, vector<ull> &fzipCodeStream, vector<ull> &fzipArgumentStream, ull &spmCodeStreamBitLength, ull &spmArgumentStreamBitLength, ull &fzipCodeStreamBitLength, ull &fzipArgumentStreamBitLength);
+
 int smacDecompress(SmacOptions options){
+    cerr << "decompressing" << endl;
+    vector<ull> row;
+    vector<ull> col;
+    vector<double> val;
+    vector<SpmCode> spmCodes;
+    vector<FzipCode> fzipCodes;
+    vector<ull> commonDoubles;
+    vector<ull> spmCodeStream;
+    vector<ull> spmArgumentStream;
+    vector<ull> fzipCodeStream;
+    vector<ull> fzipArgumentStream;
+    ull spmCodeStreamBitLength, spmArgumentStreamBitLength, fzipCodeStreamBitLength, fzipArgumentStreamBitLength;
+    SmacHeader header;
+    fread(&header, 1, sizeof(SmacHeader), options.inputFile);
+    cerr << "fzipCodesPtr: " << header.fzipCodesPtr << endl;
+    cerr << "commonDoublesPtr: " << header.commonDoublesPtr << endl;
+    for(ull i = 0; i < ((header.fzipCodesPtr - header.spmCodesPtr) / sizeof(SpmCode)); ++i){
+        SpmCode tmp;
+        fread(&tmp, sizeof(SpmCode), 1, options.inputFile);
+        spmCodes.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.commonDoublesPtr - header.fzipCodesPtr) / sizeof(FzipCode)); ++i){
+        FzipCode tmp;
+        fread(&tmp, sizeof(FzipCode), 1, options.inputFile);
+        fzipCodes.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.spmCodeStreamPtr - header.commonDoublesPtr) / sizeof(ull)); ++i){
+        ull tmp;
+        fread(&tmp, sizeof(ull), 1, options.inputFile);
+        commonDoubles.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.spmArgumentStreamPtr - header.spmCodeStreamPtr) / sizeof(ull)); ++i){
+        ull tmp;
+        fread(&tmp, sizeof(ull), 1, options.inputFile);
+        spmCodeStream.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.fzipCodeStreamPtr - header.spmArgumentStreamPtr) / sizeof(ull)); ++i){
+        ull tmp;
+        fread(&tmp, sizeof(ull), 1, options.inputFile);
+        spmArgumentStream.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.fzipArgumentStreamPtr - header.fzipCodeStreamPtr) / sizeof(ull)); ++i){
+        ull tmp;
+        fread(&tmp, sizeof(ull), 1, options.inputFile);
+        fzipCodeStream.push_back(tmp);
+    }
+    for(ull i = 0; i < ((header.size - header.fzipArgumentStreamPtr) / sizeof(ull)); ++i){
+        ull tmp;
+        fread(&tmp, sizeof(ull), 1, options.inputFile);
+        fzipArgumentStream.push_back(tmp);
+    }
+    //TODO: decode
+    smacDecompress(row, col, val, spmCodes, fzipCodes, commonDoubles, spmCodeStream, spmArgumentStream, fzipCodeStream, fzipArgumentStream, header.spmCodeStreamBitLength, header.spmArgumentStreamBitLength, header.fzipCodeStreamBitLength, header.fzipArgumentStreamBitLength);
+
+    //TODO: write
+    fprintf(options.outputFile, "\%\%MatrixMarket matrix coordinate real general\n");
+    fprintf(options.outputFile, "%lld %lld %lld\n", header.width, header.height, header.nnz);
+    if(header.nnz != val.size()){
+        cerr << "ERROR: val.size: " << val.size() << endl;
+        return 1;
+    }
+    if(header.nnz != row.size()){
+        cerr << "WARNING: row.size: " << row.size() << endl;
+    }
+    for(ull i = 0; i < header.nnz; ++i){
+        fprintf(options.outputFile, "r c %lf\n", val[i]);
+    }
     return 0;
+}
+
+bool smacDecompress(vector<ull> &row, vector<ull> &col, vector<double> &val, vector<SpmCode> &spmCodes, vector<FzipCode> &fzipCodes, vector<ull> &commonDoubles, vector<ull> &spmCodeStream, vector<ull> &spmArgumentStream, vector<ull> &fzipCodeStream, vector<ull> &fzipArgumentStream, ull &spmCodeStreamBitLength, ull &spmArgumentStreamBitLength, ull &fzipCodeStreamBitLength, ull &fzipArgumentStreamBitLength){
+    fzipDecompress(val, commonDoubles, fzipCodes, fzipCodeStream, fzipArgumentStream, fzipCodeStreamBitLength, fzipArgumentStreamBitLength);
+    spmDecompress(row, col, spmCodes, spmCodeStream, spmArgumentStream);
+
+
 }
 
 #endif
