@@ -1,6 +1,3 @@
-//TODO: deal with pattern matrices
-//TODO: deal with symmetric matrices
-//TODO: deal with matrices with empty rows
 
 #ifndef SMAC_HPP
 #define SMAC_HPP
@@ -17,9 +14,13 @@
 
 struct SmacOptions{
     bool compress;
+    bool pattern = false;
+    bool symmetric = false;
+    int multiplesFiles = -1;
     int subheight = 512;
     FILE* inputFile;
     FILE* outputFile;
+    string outputFilename;
     SmacOptions(int argc, char* argv[]){
         cerr << "here" << endl;
         int nonOptionArgs = 0;
@@ -29,6 +30,10 @@ struct SmacOptions{
                 if(arg[1] == '-'){
                     if(arg.find("subheight") != string::npos)
                         subheight = atoi(arg.substr(arg.find('='), arg.size()).c_str());
+                    if(arg.find("pattern") != string::npos)
+                        pattern = true;
+                    if(arg.find("multipleFiles") != string::npos)
+                        multipleFiles = atoi(arg.substr(arg.find("=")+1,arg.size()).c_str());
                 }else{
                     if(arg.find('c') != string::npos)
                         compress = true;
@@ -41,6 +46,7 @@ struct SmacOptions{
                     inputFile = fopen(arg.c_str(), "r");
                 }else if(nonOptionArgs == 1){
                     outputFile = fopen(arg.c_str(), "wb");
+                    outputFilename = arg;
                 }else{
                     cerr << "usage: wrong" << endl;
                     exit(1);
@@ -100,6 +106,10 @@ int smacCompress(SmacOptions options){
     cerr << "i am here" << endl;
     //getline(&line, &size, options.inputFile);
     fgets(line, 1000, options.inputFile);
+    if(string(line).find("pattern") != string::npos)
+        options.pattern = true;
+    if(string(line).find("symmetric") != string::npos)
+        options.symmetric = true;
     ull width, height, nnz;
     fscanf(options.inputFile, "%lld%lld%lld", &width, &height, &nnz);
     cerr << "info: " << width << " " << height << " " << nnz << endl;
@@ -113,11 +123,40 @@ int smacCompress(SmacOptions options){
     for(ull i = 0; i < nnz; i++){
         ull tmp1, tmp2;
         double tmp3;
-        fscanf(options.inputFile, "%lld%lld%lf", &tmp1, &tmp2, &tmp3);
+        if(options.pattern){
+            fscanf(options.inputFile, "%lld%lld", &tmp1, &tmp2);
+            tmp3 = 1.0;
+        }else{
+            fscanf(options.inputFile, "%lld%lld%lf", &tmp1, &tmp2, &tmp3);
+        }
         tmp1--; tmp2--;
         rcrMatrixMap[tmp1 / SUB_HEIGHT][tmp2 / SUB_WIDTH][tmp1 % SUB_HEIGHT][tmp2 % SUB_WIDTH] = tmp3;
         row.push_back(tmp1);
         col.push_back(tmp2);
+        if(options.symmetric && tmp1 != tmp2){
+            swap(tmp1, tmp2);
+            rcrMatrixMap[tmp1 / SUB_HEIGHT][tmp2 / SUB_WIDTH][tmp1 % SUB_HEIGHT][tmp2 % SUB_WIDTH] = tmp3;
+            row.push_back(tmp1);
+            col.push_back(tmp2);
+        }
+    }
+    vector<bool> rowHasValues;
+    rowHasValues.resize(height);
+    for(auto i1 = rcrMatrixMap.begin(); i1 != rcrMatrixMap.end(); ++i1){
+        for(auto i2 = i1->second.begin(); i2 != i1->second.end(); ++i2){
+            for(auto i3 = i2->second.begin(); i3 != i2->second.end(); ++i3){
+                for(auto i4 = i3->second.begin(); i4 != i3->second.end(); ++i4){
+                    rowHasValues[i1->first * SUB_HEIGHT + i3->first] = true;
+                }
+            }
+        }
+    }
+    for(int i = 0; i < rowHasValues.size(); ++i){
+        if(!rowHasValues[i]){
+            row.push_back(i);
+            col.push_back(0);
+            rcrMatrixMap[i / SUB_HEIGHT][0][i % SUB_HEIGHT][0] = 0.0;
+        }
     }
     for(auto i1 = rcrMatrixMap.begin(); i1 != rcrMatrixMap.end(); ++i1){
         for(auto i2 = i1->second.begin(); i2 != i1->second.end(); ++i2){
@@ -128,6 +167,7 @@ int smacCompress(SmacOptions options){
             }
         }
     }
+    nnz = row.size();
 
     smacCompress(row, col, val, spmCodes, fzipCodes, commonDoubles, spmCodeStream, spmArgumentStream, fzipCodeStream, fzipArgumentStream, spmCodeStreamBitLength, spmArgumentStreamBitLength, fzipCodeStreamBitLength, fzipArgumentStreamBitLength);
 
@@ -164,6 +204,8 @@ int smacCompress(SmacOptions options){
     fwrite(&spmArgumentStream[0], sizeof(ull), spmArgumentStream.size(), options.outputFile);
     fwrite(&fzipCodeStream[0], sizeof(ull), fzipCodeStream.size(), options.outputFile);
     fwrite(&fzipArgumentStream[0], sizeof(ull), fzipArgumentStream.size(), options.outputFile);
+    //TODO: write to multiple files
+
     return 0;
 }
 

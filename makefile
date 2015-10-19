@@ -10,8 +10,28 @@ spm.hpp: spMatrixHelp/spm.hpp
 	cp spMatrixHelp/spm.hpp .
 
 run: smac example.mtx
-	smac -c example.mtx dense.smac
-	smac -d dense.smac exampleAfter.mtx
+	smac -c example.mtx example.smac
+	smac -d example.smac exampleAfter.mtx
+	cat exampleAfter.mtx
+
+checkPattern: smac examplePattern.mtx
+	smac -c examplePattern.mtx example.smac
+	smac -d example.smac exampleAfter.mtx
+	cat exampleAfter.mtx
+
+checkSymmetric: smac exampleSymmetric.mtx
+	smac -c exampleSymmetric.mtx example.smac
+	smac -d example.smac exampleAfter.mtx
+	cat exampleAfter.mtx
+
+checkEmptyRow: smac exampleEmptyRow.mtx
+	smac -c exampleEmptyRow.mtx example.smac
+	smac -d example.smac exampleAfter.mtx
+	cat exampleAfter.mtx
+
+checkMultipleFiles: smac exampleMultipleFiles.mtx
+	smac -c --multipleFiles=2 exampleMultipleFiles.mtx example.smac
+	smac -d example0.smac exampleAfter.mtx
 	cat exampleAfter.mtx
 
 vim:
