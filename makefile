@@ -1,7 +1,7 @@
 all: smac
 
 smac: smac.cpp smac.hpp fzip.hpp spm.hpp
-	g++ -std=gnu++11 -o smac smac.cpp
+	g++ -std=gnu++1y -o smac smac.cpp
 
 fzip.hpp: fzip/include/fzip.hpp
 	cp fzip/include/fzip.hpp .
@@ -29,8 +29,8 @@ checkEmptyRow: smac exampleEmptyRow.mtx
 	smac -d example.smac exampleAfter.mtx
 	cat exampleAfter.mtx
 
-checkMultipleFiles: smac exampleMultipleFiles.mtx
-	smac -c --multipleFiles=2 exampleMultipleFiles.mtx example.smac
+checkMultipleFiles: smac example.mtx
+	smac -c --multipleFiles=2 example.mtx example.smac
 	smac -d example0.smac exampleAfter.mtx
 	cat exampleAfter.mtx
 
