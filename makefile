@@ -42,3 +42,6 @@ matrices.zip:
 
 %.mtx: matrices.zip
 	unzip -f matrices.zip $@
+
+clean:
+	rm -rf smac
