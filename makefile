@@ -48,5 +48,10 @@ matrices.zip:
 %.mtx: matrices.zip
 	unzip -f matrices.zip $@
 
+%.smac: %.mtx
+	smac -c $< $@
+
+allSmac: cant.smac  consph.smac  cop20k_A.smac  dense2.smac  example.smac  mac_econ_fwd500.smac  mc2depi.smac  pdb1HYS.smac  pwtk.smac  qcd5_4.smac  rail4284.smac  rma10.smac  scircuit.smac  shipsec1.smac  webbase-1M.smac
+
 clean:
 	rm -rf smac
