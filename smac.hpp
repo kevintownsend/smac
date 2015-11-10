@@ -10,7 +10,7 @@
 #include "spm.hpp"
 
 #define SUB_WIDTH 4
-#define SUB_HEIGHT 2
+#define SUB_HEIGHT 4
 #define CONSTANT_DELTAS 32
 
 using namespace std;
