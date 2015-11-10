@@ -9,6 +9,11 @@ fzip.hpp: fzip/include/fzip.hpp
 spm.hpp: spMatrixHelp/spm.hpp
 	cp spMatrixHelp/spm.hpp .
 
+example.smac: smac example.mtx
+	smac -c example.mtx example.smac
+	smac -d example.smac exampleAfter.mtx
+	cat exampleAfter.mtx
+
 run: smac example.mtx
 	smac -c example.mtx example.smac
 	smac -d example.smac exampleAfter.mtx
