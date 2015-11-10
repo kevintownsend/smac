@@ -235,10 +235,6 @@ int smacCompress(SmacOptions options){
                 if(currentIndex != 0)
                     if(currentIndex > nnz / options.multipleFiles * (i + 1) - SUB_HEIGHT && row[currentIndex] / SUB_HEIGHT != row[currentIndex - 1] / SUB_HEIGHT)
                         break;
-                cerr << "currentIndex: " << currentIndex << endl;
-
-                cerr << "above break: " << (currentIndex > nnz / options.multipleFiles * (i + 1) - SUB_HEIGHT) << endl;
-                cerr << "at row break: " << (row[currentIndex] / SUB_HEIGHT != row[currentIndex - 1] / SUB_HEIGHT) << endl;
                 subRow.push_back(row[currentIndex] - rowStart);
                 subCol.push_back(col[currentIndex]);
                 subVal.push_back(val[currentIndex]);

@@ -1,7 +1,7 @@
 all: smac
 
 smac: smac.cpp smac.hpp fzip.hpp spm.hpp
-	g++ -std=gnu++0x -o smac smac.cpp
+	g++ -O3 -std=gnu++0x -o smac smac.cpp
 
 fzip.hpp: fzip/include/fzip.hpp
 	cp fzip/include/fzip.hpp .
