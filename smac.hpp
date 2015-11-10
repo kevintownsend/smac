@@ -9,8 +9,8 @@
 #include "fzip.hpp"
 #include "spm.hpp"
 
-#define SUB_WIDTH 8
-#define SUB_HEIGHT 512
+#define SUB_WIDTH 2
+#define SUB_HEIGHT 2
 #define CONSTANT_DELTAS 32
 
 using namespace std;
@@ -152,6 +152,8 @@ int smacCompress(SmacOptions options){
     cerr << "done mapping to matrix map" << endl;
     vector<bool> rowHasValues;
     rowHasValues.resize(height);
+    //for(int i = 0; i < rowHasValues.size(); ++i)
+    //    rowHasValues[i] = false;
     for(auto i1 = rcrMatrixMap.begin(); i1 != rcrMatrixMap.end(); ++i1){
         for(auto i2 = i1->second.begin(); i2 != i1->second.end(); ++i2){
             for(auto i3 = i2->second.begin(); i3 != i2->second.end(); ++i3){
@@ -168,15 +170,21 @@ int smacCompress(SmacOptions options){
             rcrMatrixMap[i / SUB_HEIGHT][0][i % SUB_HEIGHT][0] = 0.0;
         }
     }
+    vector<ull> newRow;
+    vector<ull> newCol;
     for(auto i1 = rcrMatrixMap.begin(); i1 != rcrMatrixMap.end(); ++i1){
         for(auto i2 = i1->second.begin(); i2 != i1->second.end(); ++i2){
             for(auto i3 = i2->second.begin(); i3 != i2->second.end(); ++i3){
                 for(auto i4 = i3->second.begin(); i4 != i3->second.end(); ++i4){
                     val.push_back(i4->second);
+                    newRow.push_back(i1->first * SUB_HEIGHT + i3->first);
+                    newCol.push_back(i2->first * SUB_WIDTH + i4->first);
                 }
             }
         }
     }
+    row = newRow;
+    col = newCol;
     nnz = row.size();
     cerr << "calling smacCompress" << endl;
     smacCompress(row, col, val, spmCodes, fzipCodes, commonDoubles, spmCodeStream, spmArgumentStream, fzipCodeStream, fzipArgumentStream, spmCodeStreamBitLength, spmArgumentStreamBitLength, fzipCodeStreamBitLength, fzipArgumentStreamBitLength);
