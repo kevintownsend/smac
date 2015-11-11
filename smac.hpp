@@ -9,8 +9,8 @@
 #include "fzip.hpp"
 #include "spm.hpp"
 
-#define SUB_WIDTH 2
-#define SUB_HEIGHT 2
+#define SUB_WIDTH 8
+#define SUB_HEIGHT 512
 #define CONSTANT_DELTAS 32
 
 using namespace std;
