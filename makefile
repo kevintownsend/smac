@@ -40,7 +40,7 @@ checkMultipleFiles: smac example.mtx
 	cat exampleAfter.mtx
 
 vim:
-	vim -p makefile smac.cpp smac.hpp TODO fzip/include/fzip.hpp spMatrixHelp/spm.hpp
+	vim -p makefile constants.hpp smac.cpp smac.hpp TODO fzip/include/fzip.hpp spMatrixHelp/spm.hpp
 
 matrices.zip:
 	wget http://www.nvidia.com/content/NV_Research/matrices.zip
