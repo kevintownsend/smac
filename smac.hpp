@@ -8,6 +8,7 @@
 #include <string>
 #include "fzip.hpp"
 #include "spm.hpp"
+#include "constants.hpp"
 
 #define SUB_WIDTH 8
 #define SUB_HEIGHT 512
