@@ -49,7 +49,7 @@ matrices.zip:
 	smac -d $< $@
 
 %.mtx: matrices.zip
-	unzip -f matrices.zip $@
+	unzip matrices.zip $@
 
 %.smac: %.mtx
 	smac -c $< $@
