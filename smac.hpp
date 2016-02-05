@@ -362,7 +362,7 @@ int smacDecompress(SmacOptions options){
     smacDecompress(row, col, val, spmCodes, fzipCodes, commonDoubles, spmCodeStream, spmArgumentStream, fzipCodeStream, fzipArgumentStream, header.spmCodeStreamBitLength, header.spmArgumentStreamBitLength, header.fzipCodeStreamBitLength, header.fzipArgumentStreamBitLength);
 
     //TODO: write
-    fprintf(options.outputFile, "\%\%MatrixMarket matrix coordinate real general\n");
+    fprintf(options.outputFile, "%%%%MatrixMarket matrix coordinate real general\n");
     fprintf(options.outputFile, "%lld %lld %lld\n", header.height, header.width, header.nnz);
     if(header.nnz != val.size()){
         cerr << "ERROR: val.size: " << val.size() << endl;
