@@ -232,7 +232,6 @@ int smacCompress(SmacOptions options){
             rowMatrixMap[row[i]][col[i]] = val[i];
         }
         auto it1 = rowMatrixMap.begin();
-        currCount = 0;
         string prefix = options.outputFilename.substr(0,options.outputFilename.find("."));
         ull currentIndex = 0;
         for(int i = 0; i < options.multipleFiles; ++i){
@@ -246,14 +245,27 @@ int smacCompress(SmacOptions options){
             vector<double> subVal;
             //ull rowStart = row[currentIndex] / SUB_HEIGHT * SUB_HEIGHT;
             ull rowStart = it1->first;
-            while(currCount < nnz / options.multipleFiles * (i + 1)){
+            map<ull, map<ull, map<ull, map<ull, double> > > > subRcrMatrixMap;
+            while(currentIndex < nnz / options.multipleFiles * (i + 1)){
                 for(auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
                     //subRow.push_back(it)
                     //TODO: map to new rcr map
-
+                    ull tmpRow = it1->first - rowStart;
+                    ull tmpCol = it2->second;
+                    subRcrMatrixMap[tmpRow / SUB_HEIGHT][tmpCol / SUB_WIDTH][tmpRow % SUB_HEIGHT][tmpCol % SUB_WIDTH] = it2->second;
+                    currentIndex++;
                 }
-
+                it1++;
             }
+            for(auto i1 = subRcrMatrixMap.begin(); i1 != subRcrMatrixMap.end(); ++i1)
+                for(auto i2 = i1->second.begin(); i2 != i1->second.end(); ++i2)
+                    for(auto i3 = i2->second.begin(); i3 != i2->second.end(); ++i3)
+                        for(auto i4 = i3->second.begin(); i4 != i3->second.end(); ++i4){
+                            subVal.push_back(i4->second);
+                            subRow.push_back(i1->first * SUB_HEIGHT + i3->first);
+                            subCol.push_back(i2->first * SUB_WIDTH + i4->first);
+                        }
+
             //TODO: turn into subRow, subCol, subVal
             /*
             while(1){
@@ -278,7 +290,9 @@ int smacCompress(SmacOptions options){
             cerr << "fzipCodeStreamBitLength: " << fzipCodeStreamBitLength << endl;
 
             header.width = width;
-            header.height = (row[currentIndex - 1] / SUB_HEIGHT + 1) * SUB_HEIGHT - rowStart;
+            //header.height = (row[currentIndex - 1] / SUB_HEIGHT + 1) * SUB_HEIGHT - rowStart;
+            //TODO: calc height
+            header.height = it1->first - rowStart;
             header.nnz = subRow.size();
             header.spmCodeStreamBitLength = spmCodeStreamBitLength;
             header.spmArgumentStreamBitLength = spmArgumentStreamBitLength;
