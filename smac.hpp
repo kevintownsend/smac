@@ -226,6 +226,13 @@ int smacCompress(SmacOptions options){
 
     //TODO: write to multiple files
     if(options.multipleFiles != -1){
+        //TODO: row map values
+        map<ull, map<ull, double> > rowMatrixMap;
+        for(int i = 0; i < row.size(); ++i){
+            rowMatrixMap[row[i]][col[i]] = val[i];
+        }
+        auto it1 = rowMatrixMap.begin();
+        currCount = 0;
         string prefix = options.outputFilename.substr(0,options.outputFilename.find("."));
         ull currentIndex = 0;
         for(int i = 0; i < options.multipleFiles; ++i){
@@ -237,7 +244,18 @@ int smacCompress(SmacOptions options){
             vector<ull> subRow;
             vector<ull> subCol;
             vector<double> subVal;
-            ull rowStart = row[currentIndex] / SUB_HEIGHT * SUB_HEIGHT;
+            //ull rowStart = row[currentIndex] / SUB_HEIGHT * SUB_HEIGHT;
+            ull rowStart = it1->first;
+            while(currCount < nnz / options.multipleFiles * (i + 1)){
+                for(auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
+                    //subRow.push_back(it)
+                    //TODO: map to new rcr map
+
+                }
+
+            }
+            //TODO: turn into subRow, subCol, subVal
+            /*
             while(1){
                 if(currentIndex >= nnz)
                     break;
@@ -249,6 +267,7 @@ int smacCompress(SmacOptions options){
                 subVal.push_back(val[currentIndex]);
                 currentIndex++;
             }
+            */
             cerr << "subSize: " << subRow.size() << endl;
             cerr << "before: " << endl;
             cerr << "fzipCodes.size: " << fzipCodes.size() << endl;
