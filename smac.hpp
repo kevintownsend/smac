@@ -246,12 +246,12 @@ int smacCompress(SmacOptions options){
             //ull rowStart = row[currentIndex] / SUB_HEIGHT * SUB_HEIGHT;
             ull rowStart = it1->first;
             map<ull, map<ull, map<ull, map<ull, double> > > > subRcrMatrixMap;
-            while(currentIndex < nnz / options.multipleFiles * (i + 1)){
+            while(currentIndex < (nnz / options.multipleFiles + 1) * (i + 1) && currentIndex < nnz){
                 for(auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
                     //subRow.push_back(it)
                     //TODO: map to new rcr map
                     ull tmpRow = it1->first - rowStart;
-                    ull tmpCol = it2->second;
+                    ull tmpCol = it2->first;
                     subRcrMatrixMap[tmpRow / SUB_HEIGHT][tmpCol / SUB_WIDTH][tmpRow % SUB_HEIGHT][tmpCol % SUB_WIDTH] = it2->second;
                     currentIndex++;
                 }
@@ -292,7 +292,10 @@ int smacCompress(SmacOptions options){
             header.width = width;
             //header.height = (row[currentIndex - 1] / SUB_HEIGHT + 1) * SUB_HEIGHT - rowStart;
             //TODO: calc height
-            header.height = it1->first - rowStart;
+            if(it1 == rowMatrixMap.end())
+                header.height = height - rowStart;
+            else
+                header.height = it1->first - rowStart;
             header.nnz = subRow.size();
             header.spmCodeStreamBitLength = spmCodeStreamBitLength;
             header.spmArgumentStreamBitLength = spmArgumentStreamBitLength;
