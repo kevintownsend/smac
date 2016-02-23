@@ -1,10 +1,10 @@
+all: smac
+
 fast:
 	g++ -std=gnu++0x -o smac smac.cpp
 
-all: smac
-
 smac: smac.cpp smac.hpp fzip.hpp spm.hpp constants.hpp
-	g++ -g -O3 -std=gnu++0x -o smac smac.cpp
+	g++ -O3 -std=gnu++0x -o smac smac.cpp
 
 fzip.hpp: fzip/include/fzip.hpp
 	cp fzip/include/fzip.hpp .
