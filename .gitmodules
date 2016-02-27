@@ -1,6 +1,0 @@
-[submodule "fzip"]
-	path = fzip
-	url = git@github.com:kevintownsend/fzip.git
-[submodule "spMatrixHelp"]
-	path = spMatrixHelp
-	url = git@github.com:kevintownsend/spMatrixHelp.git
