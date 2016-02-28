@@ -42,8 +42,14 @@ checkMultipleFiles: smac example.mtx
 	smac -d example0.smac exampleAfter.mtx
 	cat exampleAfter.mtx
 
+check: check.cpp
+	g++ -O3 -std=gnu++0x -o check check.cpp
+
+runCheck: check
+	check example.mtx exampleAfter.mtx
+
 vim:
-	vim -p makefile constants.hpp smac.cpp smac.hpp TODO fzip/include/fzip.hpp spMatrixHelp/spm.hpp
+	vim -p makefile check.cpp constants.hpp smac.cpp smac.hpp TODO fzip/include/fzip.hpp spMatrixHelp/spm.hpp
 
 matrices.zip:
 	wget http://www.nvidia.com/content/NV_Research/matrices.zip
