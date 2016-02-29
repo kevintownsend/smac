@@ -252,6 +252,7 @@ int smacCompress(SmacOptions options){
                             subRow.push_back(i1->first * SUB_HEIGHT + i3->first);
                             subCol.push_back(i2->first * SUB_WIDTH + i4->first);
                         }
+            cerr << "submatrix " << i << " size: " << subVal.size() << endl;
 
             //TODO: turn into subRow, subCol, subVal
             /*
