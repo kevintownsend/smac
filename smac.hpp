@@ -210,6 +210,11 @@ int smacCompress(SmacOptions options){
     fwrite(&spmArgumentStream[0], sizeof(ull), spmArgumentStream.size(), options.outputFile);
     fwrite(&fzipCodeStream[0], sizeof(ull), fzipCodeStream.size(), options.outputFile);
     fwrite(&fzipArgumentStream[0], sizeof(ull), fzipArgumentStream.size(), options.outputFile);
+    cerr << "file section sizes: " << endl;
+    cerr << "spmCodeStream: " << spmCodeStream.size() << endl;
+    cerr << "spmArgumentStream: " << spmArgumentStream.size() << endl;
+    cerr << "fzipCodeStream: " << fzipCodeStream.size() << endl;
+    cerr << "fzipArgumentStream: " << fzipArgumentStream.size() << endl;
 
     //TODO: write to multiple files
     if(options.multipleFiles != -1){

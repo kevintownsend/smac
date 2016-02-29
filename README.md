@@ -1,2 +1,0 @@
-# smac
-Sparse Matrix Compression
