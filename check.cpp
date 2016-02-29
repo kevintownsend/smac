@@ -53,12 +53,10 @@ int main(int argc, char* argv[]){
             if(secondMatrixMap[row[i]][col[i]] != val[i]){
                 cerr << "values not equal at [" << row[i] << "][" << col[i] << "] first: " << val[i] << " second: " << secondMatrixMap[row[i]][col[i]] << endl;
                 mismatches++;
-                break;
             }
         }else{
             cerr << "No value in second matrix at [" << row[i] << "][" << col[i] << "] value: " << val[i] << endl;
             mismatches++;
-            break;
         }
     }
     if(!mismatches)
