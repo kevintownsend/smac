@@ -114,7 +114,10 @@ int smacCompress(SmacOptions options){
     if(string(line).find("symmetric") != string::npos)
         options.symmetric = true;
     ull width, height, nnz;
-    fscanf(options.inputFile, "%lld%lld%lld", &height, &width, &nnz);
+    while(line[0] == '%')
+        fgets(line, 1000, options.inputFile);
+
+    sscanf(line, "%lld%lld%lld", &height, &width, &nnz);
     vector<ull> row;
     vector<ull> col;
     vector<double> val;
